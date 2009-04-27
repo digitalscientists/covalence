@@ -11,6 +11,11 @@ class GenerateCovalence < ActiveRecord::Migration
       t.datetime "updated_at"
     end
 
+    add_index :covalence_notifications, [:consumer_type, :consumer_id]
+    add_index :covalence_notifications, [:producer_type, :producer_id]
+    add_index :covalence_notifications, :type
+    add_index :covalence_notifications, :created_at
+
     create_table "covalence_relationships", :force => true do |t|
       t.string   "parent_type"
       t.integer  "parent_id"
@@ -21,6 +26,13 @@ class GenerateCovalence < ActiveRecord::Migration
       t.datetime "created_at"
       t.datetime "updated_at"
     end
+    
+    add_index :covalence_relationships, [:parent_type, :parent_id]
+    add_index :covalence_relationships, [:child_type, :child_id]
+    add_index :covalence_relationships, :type
+    add_index :covalence_relationships, :state
+    add_index :covalence_relationships, :created_at
+    
   end
   
   def self.down
