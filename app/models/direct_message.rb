@@ -1,2 +1,0 @@
-class DirectMessage < CovalenceNotification
-end
