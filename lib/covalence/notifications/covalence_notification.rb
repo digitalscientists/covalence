@@ -10,6 +10,10 @@ class CovalenceNotification < ActiveRecord::Base
 
   alias_method :synchronous_save, :save
 
+  def composed args = {}
+
+  end
+
   def save args ={}
     if defined? AsyncObserver && !AsyncObserver::Queue.queue.nil?
       self.async_send(:synchronous_save)
