@@ -35,11 +35,11 @@ module Covalence
 
      module InstanceMethods
         def members
-          self.groupable_memberships.map(&:member)
+          self.covalence_memberships.map(&:member)
         end
         
         def memberships
-          self.groupable_memberships
+          self.covalence_memberships
         end
       end
 
