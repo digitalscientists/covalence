@@ -37,6 +37,10 @@ module Covalence
         def members
           self.groupable_memberships.map(&:member)
         end
+        
+        def memberships
+          self.groupable_memberships
+        end
       end
 
    end
@@ -62,6 +66,7 @@ end
 
 if Object.const_defined?("ActiveRecord")
   ActiveRecord::Base.send(:include, Covalence::Groupable)
+  ActiveRecord::Base.send(:include, Covalence::Assetable)
   
   Rails::Initializer.run do |config|
     config.after_initialize do
