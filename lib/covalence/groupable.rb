@@ -24,11 +24,11 @@ module Covalence
 
        def has_members(*members)
          include InstanceMethods
-         has_many :groupable_memberships, :as => :groupable
+         has_many :covalence_memberships, :as => :groupable
          members.each do |member|
-           has_many member, :through => :groupable_memberships, :source => :member, :source_type => member.to_s.classify
-           member.to_s.classify.constantize.send(:has_many, :groupable_memberships, :as => :member)
-           member.to_s.classify.constantize.send(:has_many, :groups, :through => :groupable_memberships)
+           has_many member, :through => :covalence_memberships, :source => :member, :source_type => member.to_s.classify
+           member.to_s.classify.constantize.send(:has_many, :covalence_memberships, :as => :member)
+           member.to_s.classify.constantize.send(:has_many, :groups, :through => :covalence_memberships)
          end
        end
      end
@@ -52,11 +52,11 @@ module Covalence
 
      module ClassMethods      
        def has_group_assets(*assets)
-         has_many :groupable_assets, :as => :groupable
+         has_many :covalence_assets, :as => :groupable
          assets.each do |asset|
-           has_many asset, :through => :groupable_assets, :source => :assetable, :source_type => asset.to_s.classify
-           asset.to_s.classify.constantize.send(:has_many, :groupable_assets, :as => :assetable)
-           asset.to_s.classify.constantize.send(:has_many, :groups, :through => :groupable_assets)
+           has_many asset, :through => :covalence_assets, :source => :assetable, :source_type => asset.to_s.classify
+           asset.to_s.classify.constantize.send(:has_many, :covalence_assets, :as => :assetable)
+           asset.to_s.classify.constantize.send(:has_many, :groups, :through => :covalence_assets)
          end
        end
      end
