@@ -21,7 +21,21 @@ module Covalence
      end
 
      module ClassMethods   
-
+       
+       def role_in(group)
+         group.covalence_memberships.find_by_member_type_and_member_id(self.class.name, self.id).role
+       end
+       
+       def has_roles(*roles)
+         class <<self
+           attr_accessor :roles
+         end
+         self.roles = Hash.new
+         roles.each_with_index do |item, index|
+           self.roles[item] = index
+         end
+       end
+       
        def has_members(*members)
          include InstanceMethods
          has_many :covalence_memberships, :as => :groupable
@@ -39,6 +53,7 @@ module Covalence
      end
 
      module InstanceMethods
+       
         def members
           self.covalence_memberships.map(&:member)
         end
@@ -79,6 +94,15 @@ if Object.const_defined?("ActiveRecord")
         Covalence::Configuration.groups.each do |group|
           begin
             groupable = group.to_s.classify.constantize
+            unless groupable.roles
+              class <<groupable
+                attr_accessor :roles
+              end
+              groupable.roles = Hash.new
+              Covalence::Configuration.roles.each_with_index do |item, index|
+                groupable.roles[item] = index
+              end
+            end
           rescue
             nil
           end
