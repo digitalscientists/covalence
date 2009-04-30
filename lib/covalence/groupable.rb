@@ -26,7 +26,12 @@ module Covalence
          include InstanceMethods
          has_many :covalence_memberships, :as => :groupable
          members.each do |member|
-           has_many member, :through => :covalence_memberships, :source => :member, :source_type => member.to_s.classify
+           has_many member, :through => :covalence_memberships, :source => :member, :source_type => member.to_s.classify do
+             def remove(member)
+               @owner.covalence_memberships.find_all_by_member_type_and_member_id(member.class.name, member.id).map(&:destroy)
+               @target.delete(member)
+             end
+           end
            member.to_s.classify.constantize.send(:has_many, :covalence_memberships, :as => :member)
            member.to_s.classify.constantize.send(:has_many, :groups, :through => :covalence_memberships)
          end
