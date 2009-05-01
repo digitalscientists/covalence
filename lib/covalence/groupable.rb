@@ -16,6 +16,7 @@ module Covalence
    end
 
    # TODO: Get default roles enabled
+   # TODO: Constrain groups to only have one relationship per member
 
    module Groupable
      def self.included(base)
@@ -44,7 +45,7 @@ module Covalence
          members.each do |member|
            has_many member, :through => :covalence_memberships, :source => :member, :source_type => member.to_s.classify do
              def remove(member)
-               @owner.covalence_memberships.find_all_by_member_type_and_member_id(member.class.name, member.id).map(&:destroy)
+               @owner.covalence_memberships.find_by_member_type_and_member_id(member.class.name, member.id).destroy
                @target.delete(member)
              end
            end
@@ -61,12 +62,12 @@ module Covalence
         end
 
          def method_missing_with_groupable(sym, *args, &block)
-           if (matches = sym.to_s.match(/^is_(.+)\?$/)).length > 0
+           if (matches = sym.to_s.match(/^is_(.+)\?$/) || []).length > 0
              if args[0].class.role_defined?(matches.captures[0].upcase.to_sym)
                return matches.captures[0].upcase.to_sym == self.role_in(args[0])
              end
            end
-           method_missing_without_groupable
+           method_missing_without_groupable(sym, args, block)
          end
 
          alias_method_chain :method_missing, :groupable
