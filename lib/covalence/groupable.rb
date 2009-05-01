@@ -25,7 +25,7 @@ module Covalence
 
      module ClassMethods   
        
-       def role_defined?(role)
+       def has_role?(role)
          self.roles.has_key?(role)
        end
        
@@ -63,10 +63,11 @@ module Covalence
 
          def method_missing_with_groupable(sym, *args, &block)
            if (matches = sym.to_s.match(/^is_(.+)\?$/) || []).length > 0
-             if args[0].class.role_defined?(matches.captures[0].upcase.to_sym)
+             if args[0].class.has_role?(matches.captures[0].upcase.to_sym)
                return matches.captures[0].upcase.to_sym == self.role_in(args[0])
              end
            end
+           
            method_missing_without_groupable(sym, args, block)
          end
 
