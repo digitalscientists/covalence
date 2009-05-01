@@ -15,6 +15,8 @@ module Covalence
      end
    end
 
+   # TODO: Get default roles enabled
+
    module Groupable
      def self.included(base)
        base.extend(ClassMethods)
@@ -22,8 +24,8 @@ module Covalence
 
      module ClassMethods   
        
-       def role_in(group)
-         group.covalence_memberships.find_by_member_type_and_member_id(self.class.name, self.id).role
+       def role_defined?(role)
+         self.roles.has_key?(role)
        end
        
        def has_roles(*roles)
@@ -48,8 +50,26 @@ module Covalence
            end
            member.to_s.classify.constantize.send(:has_many, :covalence_memberships, :as => :member)
            member.to_s.classify.constantize.send(:has_many, :groups, :through => :covalence_memberships)
+           member.to_s.classify.constantize.send(:include, MemberInstanceMethods)
          end
        end
+     end
+
+     module MemberInstanceMethods
+       def role_in(group)
+          group.class.roles.index(group.covalence_memberships.find_by_member_type_and_member_id(self.class.name, self.id))
+        end
+
+         def method_missing_with_groupable(sym, *args, &block)
+           if (matches = sym.to_s.match(/^is_(.+)\?$/)).length > 0
+             if args[0].class.role_defined?(matches.captures[0].upcase.to_sym)
+               return matches.captures[0].upcase.to_sym == self.role_in(args[0])
+             end
+           end
+           method_missing_without_groupable
+         end
+
+         alias_method_chain :method_missing, :groupable
      end
 
      module InstanceMethods
