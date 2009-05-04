@@ -47,28 +47,31 @@ module Covalence
              end
            end
            member.to_s.classify.constantize.send(:has_many, :covalence_memberships, :as => :member)
-           member.to_s.classify.constantize.send(:has_many, :groups, :through => :covalence_memberships)
+           
+           # lets show this has many through who's boss
+           CovalenceMembership.send(:belongs_to, member, :foreign_key => 'groupable_id', :class_name => member.to_s.classify)
            member.to_s.classify.constantize.send(:include, MemberInstanceMethods)
          end
        end
      end
 
      module MemberInstanceMethods
+
        def role_in(group)
-          group.class.roles.index(group.covalence_memberships.find_by_member_type_and_member_id(self.class.name, self.id))
-        end
+         group.class.roles.index(group.covalence_memberships.find_by_member_type_and_member_id(self.class.name, self.id))
+       end
 
-         def method_missing_with_groupable(sym, *args, &block)
-           if (matches = sym.to_s.match(/^is_(.+)\?$/) || []).length > 0
-             if args[0].class.has_role?(matches.captures[0].upcase.to_sym)
-               return matches.captures[0].upcase.to_sym == self.role_in(args[0])
-             end
+       def method_missing_with_groupable(sym, *args, &block)
+         if (matches = sym.to_s.match(/^is_(.+)\?$/) || []).length > 0
+           if args[0].class.has_role?(matches.captures[0].upcase.to_sym)
+             return matches.captures[0].upcase.to_sym == self.role_in(args[0])
            end
-           
-           method_missing_without_groupable(sym, args, block)
          end
+           
+         method_missing_without_groupable(sym, args, block)
+       end
 
-         alias_method_chain :method_missing, :groupable
+       alias_method_chain :method_missing, :groupable
      end
 
      module InstanceMethods
