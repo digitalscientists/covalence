@@ -15,9 +15,6 @@ module Covalence
      end
    end
 
-   # TODO: Get default roles enabled
-   # TODO: Constrain groups to only have one relationship per member
-
    module Groupable
      def self.included(base)
        base.extend(ClassMethods)
