@@ -37,7 +37,7 @@ module Covalence
        end
        
        def has_members(*members)
-         include InstanceMethods
+         include Covalence::Groupable::InstanceMethods
          has_many :covalence_memberships, :as => :groupable
          members.each do |member|
            has_many member, :through => :covalence_memberships, :source => :member, :source_type => member.to_s.classify do
@@ -47,10 +47,10 @@ module Covalence
              end
            end
            member.to_s.classify.constantize.send(:has_many, :covalence_memberships, :as => :member)
-           
-           # lets show this has many through who's boss
            CovalenceMembership.send(:belongs_to, member, :foreign_key => 'groupable_id', :class_name => member.to_s.classify)
-           member.to_s.classify.constantize.send(:include, MemberInstanceMethods)
+           member.to_s.classify.constantize.send(:has_many, self.to_s.underscore.pluralize, :through => :covalence_memberships, :source => member)
+           # member.to_s.classify.constantize.send(:has_many, :groups, :through => :covalence_memberships, :source => member)
+           member.to_s.classify.constantize.send(:include, Covalence::Groupable::MemberInstanceMethods)
          end
        end
      end
@@ -60,18 +60,11 @@ module Covalence
        def role_in(group)
          group.class.roles.index(group.covalence_memberships.find_by_member_type_and_member_id(self.class.name, self.id))
        end
-
-       def method_missing_with_groupable(sym, *args, &block)
-         if (matches = sym.to_s.match(/^is_(.+)\?$/) || []).length > 0
-           if args[0].class.has_role?(matches.captures[0].upcase.to_sym)
-             return matches.captures[0].upcase.to_sym == self.role_in(args[0])
-           end
-         end
-           
-         method_missing_without_groupable(sym, args, block)
+       
+       def is_role(group, role)
+         role == self.role_in(group)
        end
-
-       alias_method_chain :method_missing, :groupable
+       
      end
 
      module InstanceMethods
@@ -105,6 +98,7 @@ module Covalence
    end
   
 end
+
 
 if Object.const_defined?("ActiveRecord")
   ActiveRecord::Base.send(:include, Covalence::Groupable)
