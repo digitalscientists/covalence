@@ -104,8 +104,9 @@ if Object.const_defined?("ActiveRecord")
   ActiveRecord::Base.send(:include, Covalence::Groupable)
   ActiveRecord::Base.send(:include, Covalence::Assetable)
   
+  # TODO: Figure out cost associated with this
   Rails::Initializer.run do |config|
-    config.after_initialize do
+    config.to_prepare do
       if Covalence::Configuration.groups
         Covalence::Configuration.groups.each do |group|
           begin
