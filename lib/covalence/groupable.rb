@@ -60,7 +60,7 @@ module Covalence
     
     module MemberInstanceMethods
       def role_in(group)
-        membership = CovalenceMembership.find_by_member_id_and_member_type_and_groupable_id_and_groupable_type(self.id, self.to_s, group.id, group.to_s)
+        membership = self.covalence_memberships.find_by_groupable_id_and_groupable_type(group.id, group.to_s)
         return membership ? membership.role : nil
       end
     end
