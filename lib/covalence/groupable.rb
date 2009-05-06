@@ -19,7 +19,7 @@ module Covalence
       end
       
       def default_role(role)
-        # does not work yet
+        # TODO: does not work yet
         self.class.class_eval "DEFAULT_ROLE = #{role.inspect}"
       end
       
