@@ -14,7 +14,12 @@ module Covalence
         include Covalence::Groupable::GroupInstanceMethods
         has_many :covalence_memberships, :as => :groupable 
         members.each do |member|
-          has_many member, :through => :covalence_memberships, :source => 'member', :source_type => member.to_s.classify
+          has_many member, :through => :covalence_memberships, :source => 'member', :source_type => member.to_s.classify do
+            def remove(member)
+              @owner.covalence_memberships.find_by_member_type_and_member_id(member.class.name, member.id).destroy
+              @target.delete(member)
+            end
+          end
         end
       end
       
