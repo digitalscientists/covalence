@@ -2,6 +2,26 @@ require 'covalence/groupable/covalence_asset'
 require 'covalence/groupable/covalence_membership'
 
 module Covalence
+  
+  module Assetable
+    class << self
+      def included base
+        base.extend ClassMethods
+      end
+    end
+
+    module ClassMethods
+      def has_group_assets(*assets)
+        has_many :covalence_assets, :as => :groupable
+        assets.each do |asset|
+          has_many asset, :through => :covalence_assets, :source => :assetable, :source_type => asset.to_s.classify
+          asset.to_s.classify.constantize.send(:has_many, :covalence_assets, :as => :assetable)
+          asset.to_s.classify.constantize.send(:has_many, :groups, :through => :covalence_assets)
+        end
+      end
+    end
+  end
+  
   module Groupable
     class << self
       def included base
@@ -70,4 +90,5 @@ end
 
 if Object.const_defined?("ActiveRecord")
   ActiveRecord::Base.send(:include, Covalence::Groupable)
+  ActiveRecord::Base.send(:include, Covalence::Assetable)
 end
