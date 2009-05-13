@@ -1,4 +1,12 @@
-class CovalenceMembership < ActiveRecord::Base
-  belongs_to :groupable, :polymorphic => true
-  belongs_to :member, :polymorphic => true
+class CovalenceMembership < CovalenceRelationship
+  belongs_to :child, :polymorphic => true
+  belongs_to :parent, :polymorphic => true
+  
+  def role
+    status.to_i
+  end
+  
+  def role=(role)
+    status = role
+  end
 end

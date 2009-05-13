@@ -2,27 +2,12 @@ class CovalenceNotification < ActiveRecord::Base
   belongs_to :producer, :polymorphic => true
   belongs_to :consumer, :polymorphic => true
 
-  # validates_presence_of :flavor  # I haz a flavor
   validates_presence_of :producer
   validates_presence_of :consumer
 
   serialize   :message
 
   alias_method :synchronous_save, :save
-
-  def self.compose args ={}
-    
-    producer  = args.delete(:producer)
-    consumer  = args.delete(:consumer)
-    type      = args.delete(:type)
-    flavor    = self.to_s.underscore
-    
-    if defined? AsyncObserver && !AsyncObserver::Queue.queue.nil?
-      self.async_send(:create, :producer => producer, :consumer => consumer, :message => args, :flavor => flavor)
-    else
-      self.create(:producer => producer, :consumer => consumer, :message => args, :flavor => flavor)
-    end
-  end
 
   def composed args = {}
 

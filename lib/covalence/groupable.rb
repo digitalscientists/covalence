@@ -32,11 +32,11 @@ module Covalence
     module ClassMethods
       def has_members *members
         include Covalence::Groupable::GroupInstanceMethods
-        has_many :covalence_memberships, :as => :groupable 
+        has_many :covalence_memberships, :as => :parent 
         members.each do |member|
-          has_many member, :through => :covalence_memberships, :source => 'member', :source_type => member.to_s.classify do
+          has_many member, :through => :covalence_memberships, :source => 'child', :source_type => member.to_s.classify do
             def remove(member)
-              @owner.covalence_memberships.find_by_member_type_and_member_id(member.class.name, member.id).destroy
+              @owner.covalence_memberships.find_by_child_type_and_child_id(member.class.name, member.id).destroy
               @target.delete(member)
             end
             
@@ -47,7 +47,7 @@ module Covalence
                   when Symbol then role_id = @owner.class.roles.index(role)
                   else role_id = role
                 end
-                @owner.covalence_memberships.find_by_member_type_and_member_id(member.class.name, member.id).update_attribute("role", role_id)
+                @owner.covalence_memberships.find_by_child_type_and_child_id(member.class.name, member.id).update_attribute("status", role_id)
               else
                 
               end
@@ -66,9 +66,9 @@ module Covalence
       
       def is_member_of *groups
         include Covalence::Groupable::MemberInstanceMethods
-        has_many :covalence_memberships, :as => :member
+        has_many :covalence_memberships, :as => :child
         groups.each do |group|
-          has_many group, :through => :covalence_memberships, :source => 'groupable', :source_type => group.to_s.classify
+          has_many group, :through => :covalence_memberships, :source => 'parent', :source_type => group.to_s.classify
         end
       end
       
@@ -96,7 +96,8 @@ module Covalence
     
     module MemberInstanceMethods
       def role_in(group)
-        membership = self.covalence_memberships.find_by_groupable_id_and_groupable_type(group.id, group.class.name)
+        membership = self.covalence_memberships.find_by_parent_id_and_parent_type(group.id, group.class.name)
+        Growler.growl(membership.inspect)
         return membership ? group.class.roles[membership.role] : nil
       end
       
