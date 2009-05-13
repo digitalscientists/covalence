@@ -17,7 +17,7 @@ class CovalenceNotification < ActiveRecord::Base
     type      = args.delete(:type)
     flavor    = self.to_s.underscore
     
-    unless AsyncObserver::Queue.queue.nil?
+    if defined? AsyncObserver && !AsyncObserver::Queue.queue.nil?
       self.async_send(:create, :producer => producer, :consumer => consumer, :message => args, :flavor => flavor)
     else
       self.create(:producer => producer, :consumer => consumer, :message => args, :flavor => flavor)
