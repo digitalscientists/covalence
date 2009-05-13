@@ -10,6 +10,20 @@ class CovalenceNotification < ActiveRecord::Base
 
   alias_method :synchronous_save, :save
 
+  def self.compose args ={}
+    
+    producer  = args.delete(:producer)
+    consumer  = args.delete(:consumer)
+    type      = args.delete(:type)
+    flavor    = self.to_s.underscore
+    
+    unless AsyncObserver::Queue.queue.nil?
+      self.async_send(:create, :producer => producer, :consumer => consumer, :message => args, :flavor => flavor)
+    else
+      self.create(:producer => producer, :consumer => consumer, :message => args, :flavor => flavor)
+    end
+  end
+
   def composed args = {}
 
   end
