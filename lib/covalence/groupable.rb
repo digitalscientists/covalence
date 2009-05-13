@@ -96,8 +96,19 @@ module Covalence
     
     module MemberInstanceMethods
       def role_in(group)
-        membership = self.covalence_memberships.find_by_groupable_id_and_groupable_type(group.id, group.to_s)
-        return membership ? membership.role : nil
+        membership = self.covalence_memberships.find_by_groupable_id_and_groupable_type(group.id, group.class.name)
+        return membership ? group.class.roles[membership.role] : nil
+      end
+      
+      def method_missing method, *args, &block
+        if method.to_s =~ /is_.*\?/
+          group = args[0]
+          role = method.to_s.match(/is_(.*)\?/).captures[0].upcase.to_sym
+          if group.has_role?(role.to_sym)
+            return self.role_in(group) == role
+          end
+        end
+        super
       end
     end
     
