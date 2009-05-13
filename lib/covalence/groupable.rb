@@ -97,7 +97,6 @@ module Covalence
     module MemberInstanceMethods
       def role_in(group)
         membership = self.covalence_memberships.find_by_parent_id_and_parent_type(group.id, group.class.name)
-        Growler.growl(membership.inspect)
         return membership ? group.class.roles[membership.role] : nil
       end
       
