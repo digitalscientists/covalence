@@ -39,13 +39,29 @@ module Covalence
               @owner.covalence_memberships.find_by_member_type_and_member_id(member.class.name, member.id).destroy
               @target.delete(member)
             end
+            
+            def join(member, role = nil)
+              self << member
+              if role
+                case role
+                  when Symbol then role_id = @owner.class.roles.index(role)
+                  else role_id = role
+                end
+                @owner.covalence_memberships.find_by_member_type_and_member_id(member.class.name, member.id).update_attribute("role", role_id)
+              else
+                
+              end
+            end
           end
         end
       end
       
-      def default_role(role)
+      def has_default_role(role)
         # TODO: does not work yet
-        self.class.class_eval "DEFAULT_ROLE = #{role.inspect}"
+        class << self
+          attr_accessor :default_role
+        end
+        @default_role = role
       end
       
       def is_member_of *groups
