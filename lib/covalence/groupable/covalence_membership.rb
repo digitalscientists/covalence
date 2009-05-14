@@ -9,4 +9,5 @@ class CovalenceMembership < CovalenceRelationship
   def role=(role)
     status = role
   end
+  
 end

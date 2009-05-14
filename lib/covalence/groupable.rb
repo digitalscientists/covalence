@@ -86,7 +86,7 @@ module Covalence
       end
       
       def members
-        self.covalence_memberships.map(&:member)
+        self.covalence_memberships.map(&:child)
       end
       
       def memberships
