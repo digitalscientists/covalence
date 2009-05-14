@@ -10,4 +10,8 @@ class CovalenceMembership < CovalenceRelationship
     status = role
   end
   
+  def self.generate_token
+    Digest::SHA1.hexdigest("--#{Time.now.utc.to_s}--")
+  end
+  
 end
