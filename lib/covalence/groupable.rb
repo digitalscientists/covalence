@@ -100,6 +100,10 @@ module Covalence
         return membership ? group.class.roles[membership.role] : nil
       end
       
+      def member_in?(group)
+        !!self.covalence_memberships.find_by_parent_id_and_parent_type(group.id, group.class.name)
+      end
+      
       def method_missing method, *args, &block
         if method.to_s =~ /is_.*\?/
           group = args[0]
