@@ -35,22 +35,33 @@ module Covalence
         has_many :covalence_memberships, :as => :parent 
         members.each do |member|
           has_many member, :through => :covalence_memberships, :source => 'child', :source_type => member.to_s.classify do
+            
+            def <<(*args)
+              args.each do |arg|
+                create_with_role(arg, nil)
+              end
+            end
+            
             def remove(member)
               @owner.covalence_memberships.find_by_child_type_and_child_id(member.class.name, member.id).destroy
               @target.delete(member)
             end
             
-            def join(member, role = nil)
-              self << member
-              if role
+            def create_with_role(member, role)
+              if role != nil
                 case role
                   when Symbol then role_id = @owner.class.roles.index(role)
                   else role_id = role
                 end
-                @owner.covalence_memberships.find_by_child_type_and_child_id(member.class.name, member.id).update_attribute("status", role_id)
-              else
-                
+                @owner.covalence_memberships.create(:child => member, :status => role_id.to_s)
+              elsif @owner.class.respond_to?(:default_role)
+                @owner.covalence_memberships.create(:child => member, :status => @owner.class.roles.index(@owner.class.default_role).to_s)
               end
+            end
+            
+                        
+            def join(member, role = nil)
+              create_with_role(member, role)
             end
           end
         end

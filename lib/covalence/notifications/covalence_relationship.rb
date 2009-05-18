@@ -5,4 +5,6 @@ class CovalenceRelationship < ActiveRecord::Base
     # validates_presence_of :flavor  # I haz a flavor
     validates_presence_of :parent
     validates_presence_of :child
+    
+    
 end
