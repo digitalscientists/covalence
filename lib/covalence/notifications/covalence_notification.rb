@@ -1,5 +1,6 @@
 class CovalenceNotification < ActiveRecord::Base
   
+  cattr_accessor :persistent
   
   belongs_to :producer, :polymorphic => true
   belongs_to :consumer, :polymorphic => true
@@ -13,6 +14,20 @@ class CovalenceNotification < ActiveRecord::Base
 
   def composed args = {}
 
+  end
+  
+  def self.is_not_persistent
+    self.persistent = false
+  end
+
+  def after_find
+    if persistent == false
+      self.destroy
+    else
+      if self.state == 'new'
+        self.update_attribute('state', 'read')
+      end
+    end
   end
 
   # def save args ={}
