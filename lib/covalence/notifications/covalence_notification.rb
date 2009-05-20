@@ -27,8 +27,8 @@ class CovalenceNotification < ActiveRecord::Base
     "receive_#{self.class.to_s.underscore}_notification".to_sym
   end
 
-  def method_missing m,args=nil
-    message[m.to_sym]
-  end
+  # def method_missing m,args=nil
+  #     message[m.to_sym]
+  #   end
 
 end

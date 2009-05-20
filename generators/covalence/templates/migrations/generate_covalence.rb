@@ -6,6 +6,7 @@ class GenerateCovalence < ActiveRecord::Migration
       t.string   "producer_type"
       t.integer  "producer_id"
       t.string   "type"
+      t.string   "state", :default => 'new'
       t.text     "message"
       t.datetime "created_at"
       t.datetime "updated_at"
@@ -33,7 +34,10 @@ class GenerateCovalence < ActiveRecord::Migration
     
     add_index :covalence_notifications, [:producer_id, :producer_type]
     add_index :covalence_notifications, [:consumer_id, :consumer_type]
+    add_index :covalence_notifications, :type
+    add_index :covalence_notifications, :state
     add_index :covalence_relationships, :type
+    add_index :covalence_relationships, :state
     add_index :covalence_relationships, [:parent_id, :parent_type]
     add_index :covalence_relationships, [:child_id, :child_type]
     add_index :covalence_assets, [:groupable_id, :groupable_type]
