@@ -1,7 +1,5 @@
 class CovalenceNotification < ActiveRecord::Base
   
-  cattr_accessor :persistent
-  
   belongs_to :producer, :polymorphic => true
   belongs_to :consumer, :polymorphic => true
 
@@ -17,7 +15,12 @@ class CovalenceNotification < ActiveRecord::Base
   end
   
   def self.is_not_persistent
-    self.persistent = false
+    self.to_s.constantize.send(:cattr_accessor, :persistence)
+    self.to_s.constantize.persistence = false
+  end
+  
+  def persistent?
+    !self.class.respond_to?(:persistence) || self.class.persistence
   end
 
   def after_find
