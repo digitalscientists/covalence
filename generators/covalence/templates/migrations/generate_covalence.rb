@@ -10,6 +10,7 @@ class GenerateCovalence < ActiveRecord::Migration
       t.text     "message"
       t.datetime "created_at"
       t.datetime "updated_at"
+      t.datetime "published_at", :default => Time.now
     end
 
     create_table "covalence_relationships", :force => true do |t|
