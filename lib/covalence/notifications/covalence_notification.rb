@@ -24,7 +24,7 @@ class CovalenceNotification < ActiveRecord::Base
   end
 
   def after_find
-    if persistent == false
+    unless persistent?
       self.destroy
     else
       if self.state == 'new'
