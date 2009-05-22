@@ -49,13 +49,9 @@ module Covalence
             
             def create_with_role(member, role)
               if role != nil
-                case role
-                  when Symbol then role_id = @owner.class.roles.index(role)
-                  else role_id = role
-                end
-                @owner.covalence_memberships.create(:child => member, :status => role_id.to_s)
+                @owner.covalence_memberships.create(:child => member, :status => role.to_s)
               elsif @owner.class.respond_to?(:default_role)
-                @owner.covalence_memberships.create(:child => member, :status => @owner.class.roles.index(@owner.class.default_role).to_s)
+                @owner.covalence_memberships.create(:child => member, :status => @owner.class.default_role.to_s)
               end
             end
             
@@ -108,7 +104,7 @@ module Covalence
     module MemberInstanceMethods
       def role_in(group)
         membership = self.covalence_memberships.find_by_parent_id_and_parent_type(group.id, group.class.name)
-        return membership ? group.class.roles[membership.role] : nil
+        return membership ? membership.role : false
       end
       
       def member_in?(group)
@@ -119,7 +115,7 @@ module Covalence
         if method.to_s =~ /is_.*\?/
           group = args[0]
           role = method.to_s.match(/is_(.*)\?/).captures[0].upcase.to_sym
-          if group.has_role?(role.to_sym)
+          if group.has_role?(role)
             return self.role_in(group) == role
           end
         end

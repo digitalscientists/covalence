@@ -3,7 +3,7 @@ class CovalenceMembership < CovalenceRelationship
   belongs_to :parent, :polymorphic => true
   
   def role
-    status.to_i
+    status.to_sym
   end
   
   def role=(role)
