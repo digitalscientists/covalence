@@ -6,7 +6,7 @@ class CovalenceNotification < ActiveRecord::Base
   validates_presence_of :producer
   validates_presence_of :consumer
 
-  serialize   :message
+  serialize :message
 
   # alias_method :synchronous_save, :save
 
@@ -21,16 +21,6 @@ class CovalenceNotification < ActiveRecord::Base
   
   def persistent?
     !self.class.respond_to?(:persistence) || self.class.persistence
-  end
-
-  def after_find
-    unless persistent?
-      self.destroy
-    else
-      if self.state == 'new'
-        self.update_attribute('state', 'read')
-      end
-    end
   end
 
   # def save args ={}

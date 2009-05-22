@@ -108,6 +108,7 @@ module Covalence
       end
       
       def member_in?(group)
+        # if you don't know the !! is for, you probably shouldn't be here
         !!self.covalence_memberships.find_by_parent_id_and_parent_type(group.id, group.class.name)
       end
       
