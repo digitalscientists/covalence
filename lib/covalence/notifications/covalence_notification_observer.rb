@@ -7,10 +7,12 @@ class CovalenceNotificationObserver < ActiveRecord::Observer
   def after_find(notification)
 
     # YAML CAN SUCK ON THIS
-    notification.message.each_pair do |key, value|
-      if value.is_a? YAML::Object
-        value.class.to_s.constantize
-        notification.message[key] = YAML::load(value.to_yaml)
+    if notification.message.is_a? Hash
+      notification.message.each_pair do |key, value|
+        if value.is_a? YAML::Object
+          value.class.to_s.constantize
+          notification.message[key] = YAML::load(value.to_yaml)
+        end
       end
     end
     

@@ -99,6 +99,10 @@ module Covalence
       def memberships
         self.covalence_memberships
       end
+      
+      def with_role(role)
+        self.covalence_memberships.all(:conditions => ['status = ?', role.to_s]).map(&:child)
+      end
     end
     
     module MemberInstanceMethods
