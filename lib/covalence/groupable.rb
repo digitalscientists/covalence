@@ -75,7 +75,7 @@ module Covalence
         include Covalence::Groupable::MemberInstanceMethods
         has_many :covalence_memberships, :as => :child
         groups.each do |group|
-          has_many group, :through => :covalence_memberships, :source => 'parent', :source_type => group.to_s.classify
+          has_many group, :through => :covalence_memberships, :source => 'parent', :source_type => group.to_s.classify, :conditions => ['state is null or state != ?', 'pending']
         end
       end
       
