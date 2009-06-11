@@ -10,24 +10,24 @@ module Covalence
         validates_presence_of :consumer
         serialize :message
       end
-    end
-        
-    def persistent?
-      !self.class.respond_to?(:persistence) || self.class.persistence
-    end
-
-    def receiver_method
-      "receive_#{self.class.to_s.underscore}_notification".to_sym
-    end
-
-    def update_receiver_method
-      "receive_#{self.class.to_s.underscore}_notification_update".to_sym
-    end
       
-    def check_consumer
-      Growler.growl("CREATED NOTIFICATION")
-      consumer.send(receiver_method, self) if consumer.respond_to? receiver_method
-      logger.info('Notification processed! (From Notification Observer)') 
+      def persistent?
+        !self.class.respond_to?(:persistence) || self.class.persistence
+      end
+
+      def receiver_method
+        "receive_#{self.class.to_s.underscore}_notification".to_sym
+      end
+
+      def update_receiver_method
+        "receive_#{self.class.to_s.underscore}_notification_update".to_sym
+      end
+
+      def check_consumer
+        consumer.send(receiver_method, self) if consumer.respond_to? receiver_method
+        logger.info('Notification processed! (From Notification Observer)') 
+      end
+      
     end
         
     module ClassMethods
