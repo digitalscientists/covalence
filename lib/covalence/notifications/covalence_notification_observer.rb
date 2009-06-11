@@ -1,12 +1,21 @@
 class CovalenceNotificationObserver < ActiveRecord::Observer
+  
+  observe :announcement
+  
   def after_create(notification)
+    Growler.growl("CREATED NOTIFICATION")
     notification.consumer.send(notification.receiver_method,notification) if notification.consumer.respond_to? notification.receiver_method
     notification.logger.info('Notification processed! (From Notification Observer)') 
   end
   
+  def after_update
+    notification.consumer.send(notification.update_receiver_method,notification) if notification.consumer.respond_to? notification.update_receiver_method
+    notification.logger.info('Notification updated! (From Notification Observer)')
+  end
+  
   def after_find(notification)
 
-    # YAML CAN SUCK ON THIS
+    # Force Yaml to handle hash correctly
     if notification.message.is_a? Hash
       notification.message.each_pair do |key, value|
         if value.is_a? YAML::Object
