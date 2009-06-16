@@ -26,6 +26,7 @@ module Covalence
     class << self
       def included base
         base.extend ClassMethods
+        base.send(:include, Covalence::Assetable)
       end
     end
     
@@ -139,9 +140,4 @@ module Covalence
     end
     
   end
-end
-
-if Object.const_defined?("ActiveRecord")
-  ActiveRecord::Base.send(:include, Covalence::Groupable)
-  ActiveRecord::Base.send(:include, Covalence::Assetable)
 end
