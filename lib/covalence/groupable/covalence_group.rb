@@ -3,9 +3,6 @@ module Covalence
   module Group
     def self.included(model)
       model.extend(ClassMethods)
-      model.class_eval do
-        include Covalence::Assetable
-      end
     end
     
     module ClassMethods
@@ -58,14 +55,6 @@ module Covalence
           attr_accessor :default_role
         end
         @default_role = role
-      end
-      
-      def is_member_of *groups
-        include Covalence::Groupable::MemberInstanceMethods
-        has_many :covalence_memberships, :as => :child
-        groups.each do |group|
-          has_many group, :through => :covalence_memberships, :source => 'parent', :source_type => group.to_s.classify, :conditions => ['state is null or state != ?', 'pending']
-        end
       end
       
       def has_roles *roles

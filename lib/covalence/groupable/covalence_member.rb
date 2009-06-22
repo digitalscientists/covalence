@@ -4,7 +4,16 @@ module Covalence
     def self.included(model)
       model.extend(ClassMethods)
     end
-     
+    
+    module ClassMethods
+      def is_member_of *groups
+        has_many :covalence_memberships, :as => :child
+        groups.each do |group|
+          has_many group, :through => :covalence_memberships, :source => 'parent', :source_type => group.to_s.classify, :conditions => ['state is null or state != ?', 'pending']
+        end
+      end
+    end 
+    
     def role_in(group)
       membership = self.covalence_memberships.find_by_parent_id_and_parent_type(group.id, group.class.name)
       return membership ? membership.role : false

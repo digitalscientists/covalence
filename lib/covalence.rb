@@ -1,2 +1,2 @@
 require 'covalence/notifications'
-require 'covalence/groupable'
+require 'covalence/groups'
