@@ -3,14 +3,53 @@ require 'covalence/groupable/covalence_membership'
 
 module Covalence
   
-  module Assetable
-    class << self
-      def included base
-        base.extend ClassMethods
+  module Member
+    def self.included(model)
+      model.extend(ClassMethods)
+    end
+     
+    def role_in(group)
+      membership = self.covalence_memberships.find_by_parent_id_and_parent_type(group.id, group.class.name)
+      return membership ? membership.role : false
+    end
+    
+    def member_in?(group)
+      # if you don't know the !! is for, you probably shouldn't be here
+      !!self.covalence_memberships.find_by_parent_id_and_parent_type(group.id, group.class.name)
+    end
+    
+    def method_missing method, *args, &block
+      if method.to_s =~ /^is_.*\?$/
+        group = args[0]
+        role = method.to_s.match(/^is_(.*)\?$/).captures[0].upcase.to_sym
+        if group.has_role?(role)
+          return self.role_in(group) == role
+        end
+      elsif method.to_s =~ /^is_.*_of$/
+        role = method.to_s.match(/^is_(.*)_of$/).captures[0].upcase.to_sym
+        groups = []
+        klass = args[0]
+        klass.all.each do |group|
+          if group.has_role?(role) && self.role_in(group) == role
+            groups << group
+          end
+        end
+        return groups
+      end
+      super
+    end
+  end
+  
+  module Group
+    def self.included(model)
+      model.extend(ClassMethods)
+      model.class_eval do
+        include Covalence::Assetable
       end
     end
-
+    
     module ClassMethods
+      
       def has_group_assets(*assets)
         has_many :covalence_assets, :as => :groupable
         assets.each do |asset|
@@ -19,18 +58,7 @@ module Covalence
           asset.to_s.classify.constantize.send(:has_many, :groups, :through => :covalence_assets)
         end
       end
-    end
-  end
-  
-  module Groupable
-    class << self
-      def included base
-        base.extend ClassMethods
-        base.send(:include, Covalence::Assetable)
-      end
-    end
-    
-    module ClassMethods
+      
       def has_members *members
         include Covalence::Groupable::GroupInstanceMethods
         has_many :covalence_memberships, :as => :parent 
@@ -87,57 +115,21 @@ module Covalence
         self.roles = roles
       end
     end
-    
-    module GroupInstanceMethods
-      def has_role?(role)
-        self.class.roles.include?(role)
-      end
-      
-      def members
-        self.covalence_memberships.map(&:child)
-      end
-      
-      def memberships
-        self.covalence_memberships
-      end
-      
-      def with_role(role)
-        self.covalence_memberships.all(:conditions => ['status = ?', role.to_s]).map(&:child)
-      end
+  
+    def has_role?(role)
+      self.class.roles.include?(role)
     end
     
-    module MemberInstanceMethods
-      def role_in(group)
-        membership = self.covalence_memberships.find_by_parent_id_and_parent_type(group.id, group.class.name)
-        return membership ? membership.role : false
-      end
-      
-      def member_in?(group)
-        # if you don't know the !! is for, you probably shouldn't be here
-        !!self.covalence_memberships.find_by_parent_id_and_parent_type(group.id, group.class.name)
-      end
-      
-      def method_missing method, *args, &block
-        if method.to_s =~ /^is_.*\?$/
-          group = args[0]
-          role = method.to_s.match(/^is_(.*)\?$/).captures[0].upcase.to_sym
-          if group.has_role?(role)
-            return self.role_in(group) == role
-          end
-        elsif method.to_s =~ /^is_.*_of$/
-          role = method.to_s.match(/^is_(.*)_of$/).captures[0].upcase.to_sym
-          groups = []
-          klass = args[0]
-          klass.all.each do |group|
-            if group.has_role?(role) && self.role_in(group) == role
-              groups << group
-            end
-          end
-          return groups
-        end
-        super
-      end
+    def members
+      self.covalence_memberships.map(&:child)
     end
     
+    def memberships
+      self.covalence_memberships
+    end
+    
+    def with_role(role)
+      self.covalence_memberships.all(:conditions => ['status = ?', role.to_s]).map(&:child)
+    end
   end
 end
