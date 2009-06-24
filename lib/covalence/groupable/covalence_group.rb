@@ -17,7 +17,6 @@ module Covalence
       end
       
       def has_members *members
-        include Covalence::Groupable::GroupInstanceMethods
         has_many :covalence_memberships, :as => :parent 
         members.each do |member|
           has_many member, :through => :covalence_memberships, :source => 'child', :source_type => member.to_s.classify do
