@@ -25,7 +25,13 @@ module Covalence
     end
     
     def method_missing method, *args, &block
-      if method.to_s =~ /^is_.*\?$/
+      if method.to_s =~ /^is_.*_of\?$/
+        group = args[0]
+        role = method.to_s.match(/^is_(.*)_of\?$/).captures[0].upcase.to_sym
+        if group.has_role?(role)
+          return self.role_in(group) == role
+        end
+      elsif method.to_s =~ /^is_.*\?$/
         group = args[0]
         role = method.to_s.match(/^is_(.*)\?$/).captures[0].upcase.to_sym
         if group.has_role?(role)
