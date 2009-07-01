@@ -1,6 +1,14 @@
-class CovalenceMembership < CovalenceRelationship
-  belongs_to :child, :polymorphic => true
-  belongs_to :parent, :polymorphic => true
+module Covalence
+  module Membership
+    def self.included(model)
+      model.extend(ClassMethods)
+      model.class_eval do
+        include Covalence::Relationship
+        belongs_to :child, :polymorphic => true
+        belongs_to :parent, :polymorphic => true
+      end
+    end
+  end
   
   def role
     status.to_sym
@@ -10,8 +18,10 @@ class CovalenceMembership < CovalenceRelationship
     status = role
   end
   
-  def self.generate_token
-    Digest::SHA1.hexdigest("--#{Time.now.utc.to_s}--")
+  module ClassMethods
+    def generate_token
+      Digest::SHA1.hexdigest("--#{Time.now.utc.to_s}--")
+    end
   end
 
 end
