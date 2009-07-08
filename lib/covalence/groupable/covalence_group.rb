@@ -6,7 +6,8 @@ module Covalence
       model.class_eval do
         def self.covalence_options
           @covalence_options ||= {
-            :membership_class => 'Membership'
+            :membership_class => 'Membership',
+            :conditions => nil
           }
         end
       end
@@ -25,7 +26,13 @@ module Covalence
       
       def has_members *members
         covalence_options.merge!(members.pop) if members.last.is_a? Hash
-        has_many :memberships, :as => :parent, :class_name => covalence_options[:membership_class], :dependent => :destroy 
+        table_name = covalence_options[:membership_class].tableize
+        has_many :memberships, 
+          :as => :parent, 
+          :class_name => covalence_options[:membership_class], 
+          :dependent => :destroy, 
+          :conditions => covalence_options[:conditions]
+          
         members.each do |member|
           has_many member, :through => :memberships, :source => 'child', :source_type => member.to_s.classify do
             

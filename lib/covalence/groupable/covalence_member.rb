@@ -6,7 +6,8 @@ module Covalence
       model.class_eval do
         def self.covalence_options
           @covalence_options ||= {
-            :membership_class => 'Membership'
+            :membership_class => 'Membership',
+            :conditions => nil
           }
         end
       end
@@ -18,7 +19,10 @@ module Covalence
         covalence_options.merge!(groups.pop) if groups.last.is_a? Hash
         has_many :memberships, :as => :child, :class_name => covalence_options[:membership_class]
         groups.each do |group|
-          has_many group, :through => :memberships, :source => 'parent', :source_type => group.to_s.classify, :conditions => ['state is null or state != ?', 'pending']
+          has_many group, :through => :memberships, 
+            :source => 'parent', 
+            :source_type => group.to_s.classify, 
+            :conditions => ['state is null or state != ?', 'pending']
         end
       end
     end 
