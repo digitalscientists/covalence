@@ -61,7 +61,7 @@ module Covalence
         groups = []
         klass = args[0]
         klass.all.each do |group|
-          if group.has_role?(role) && self.role_in(group).to_sym == role
+          if group.has_role?(role) && (self.role_in(group) && self.role_in(group).to_sym == role)
             groups << group
           end
         end
