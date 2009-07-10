@@ -27,6 +27,12 @@ module Covalence
       end
     end 
     
+    def set_role(group, role) 
+      role = role.is_a?(String) ? role : role.to_s
+      membership = self.memberships.find_by_parent_id_and_parent_type(group.id, group.class.name)
+      membership.update_attribute(:status, role)
+    end
+    
     def role_in(group)
       membership = self.memberships.find_by_parent_id_and_parent_type(group.id, group.class.name)
       return membership ? membership.status : false
