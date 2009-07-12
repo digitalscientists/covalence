@@ -14,7 +14,6 @@ module Covalence
     module ClassMethods
     
       def find_by_parent_and_child(parent, child)
-        Growler.growl(parent.class)
         first(:conditions => [
           'parent_type = ? and parent_id =? and child_type = ? and child_id = ?',
           parent.class.to_s, 
