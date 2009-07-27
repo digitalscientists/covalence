@@ -24,6 +24,23 @@ module Covalence
         end
       end
       
+      def has_group_assets_through(klass, *assets)
+        # TODO: refactor
+        assets.each do |asset|
+            define_method(asset) { 
+              asset.to_s.classify.constantize.all(
+                :joins => klass, 
+                :conditions => [
+                  "#{klass}_id in (select child_id from #{self.class.covalence_options[:membership_class].tableize} where parent_type = ? and parent_id = ? and child_type = ?)", 
+                  self.class.name, 
+                  self.id,
+                  klass.to_s.classify
+                ]
+              )
+            }  
+        end
+      end
+      
       def has_members *members
         covalence_options.merge!(members.pop) if members.last.is_a? Hash
         table_name = covalence_options[:membership_class].tableize
