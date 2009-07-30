@@ -3,7 +3,7 @@ ROOT = File.dirname(__FILE__)
 # Requires
 %w{rubygems test/unit active_record shoulda stringio}.each {|dependency| require dependency }
 require ROOT + '/../lib/covalence'
-%w{group user membership}.each { |fixture| require "fixtures/#{fixture}" }
+%w{group user membership}.each { |model| require "models/#{model}" }
 
 module Kernel
   def capture_output
@@ -18,7 +18,7 @@ end
 
 # Setup ActiveRecord, Load schema
 ActiveRecord::Base.establish_connection(YAML::load_file(ROOT + '/database.yml')['sqlite3'])
-capture_output { load(ROOT + '/fixtures/schema.rb') }
+capture_output { load(ROOT + '/schema.rb') }
 
 
 # Tests
