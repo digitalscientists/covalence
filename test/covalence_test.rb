@@ -1,24 +1,13 @@
-require 'rubygems'
-require 'test/unit'
-require 'shoulda'
-require 'factory_girl'
-
-class User
-  attr_accessor :first_name
-end
-
-Factory.define :user do |f|
-  f.first_name 'Foo'
-end
+require File.join(File.dirname(__FILE__), 'helper')
 
 class CovalenceTest < Test::Unit::TestCase
-  context "A User" do
+  context "Default" do
     setup do
-      @user = Factory.build(:user)
+      puts "FOO"
     end
-
-    should "have a first name" do
-      assert_equal @user.first_name, 'Foo'
+  
+    should "DO Foo" do
+      assert false
     end
   end
 end
