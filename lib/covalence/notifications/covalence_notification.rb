@@ -26,7 +26,7 @@ module Covalence
 
       def check_consumer
         consumer.send(receiver_method, self) if consumer.respond_to? receiver_method
-        logger.info('Notification processed! (From Notification Observer)') 
+        logger.info("Notification processed! (From Notification Observer) ##{receiver_method}") 
       end
       
       def set_as_read

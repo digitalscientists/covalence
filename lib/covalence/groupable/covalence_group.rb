@@ -55,7 +55,7 @@ module Covalence
             
             def <<(*args)
               args.each do |arg|
-                join_with_role(arg, nil)
+                join(arg, nil)
               end
             end
             
@@ -63,18 +63,13 @@ module Covalence
               @owner.memberships.find_by_child_type_and_child_id(member.class.name, member.id).destroy
               @target.delete(member)
             end
-            
-            def join_with_role(member, role)
+                        
+            def join(member, role = nil)
               if role != nil
                 @owner.memberships.create(:child => member, :status => role.to_s)
               elsif @owner.class.respond_to?(:default_role)
                 @owner.memberships.create(:child => member, :status => @owner.class.default_role.to_s)
               end
-            end
-            
-                        
-            def join(member, role = nil)
-              join_with_role(member, role)
             end
            
           end

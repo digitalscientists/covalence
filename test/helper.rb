@@ -1,29 +1,45 @@
 ROOT = File.dirname(__FILE__)
 
 # Requires
-%w{rubygems test/unit mocha active_record shoulda}.each {|dependency| require dependency }
+%w{rubygems test/unit active_record shoulda stringio}.each {|dependency| require dependency }
 require ROOT + '/../lib/covalence'
 %w{group user membership}.each { |fixture| require "fixtures/#{fixture}" }
 
+module Kernel
+  def capture_output
+    out = StringIO.new
+    $stdout = out
+    yield
+    return out
+  ensure
+    $stdout = STDOUT
+  end
+end
+
 # Setup ActiveRecord, Load schema
-database_config = YAML::load_file(ROOT + '/database.yml')['sqlite3']
-ActiveRecord::Base.establish_connection(database_config)
-load(ROOT + '/fixtures/schema.rb')
+ActiveRecord::Base.establish_connection(YAML::load_file(ROOT + '/database.yml')['sqlite3'])
+capture_output { load(ROOT + '/fixtures/schema.rb') }
+
 
 # Tests
 class UserTest < Test::Unit::TestCase
   
   context "When a user joins a group they" do
     setup do
-      @user = User.create
-      @user2 = User.create
-      @group = Group.create
+      @user   = User.create
+      @user2  = User.create
+      @group  = Group.create
+      @role   = :ADMIN
+      
       @group.users << @user
-      @role = :ADMIN
-      @group.users.join_with_role(@user2, @role)
+      @group.users.join(@user2, @role)
     end
     
     should "be a member of that group" do
+      assert_contains @group.users, @user
+    end
+    
+    should "know it's a member of that group" do
       assert @user.member_in?(@group)
     end
     
@@ -35,9 +51,14 @@ class UserTest < Test::Unit::TestCase
       assert_equal @role.to_s, @user2.role_in(@group)
     end
     
+    should "be able to change roles" do
+      @user.set_role(@group, :ADMIN)
+      assert_equal :ADMIN.to_s, @user.role_in(@group)
+    end
+    
     should "be able to leave that group" do
-      @group.users.remove(@user)
-      assert_does_not_contain @group.users, @user
+      @group.users.remove(@user2)
+      assert_does_not_contain @group.users, @user2
     end
   end
   
