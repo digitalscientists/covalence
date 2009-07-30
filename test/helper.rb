@@ -1,34 +1,16 @@
-require 'rubygems'
-require 'test/unit'
-require 'mocha'
-require 'active_record'
-require 'shoulda'
 ROOT = File.dirname(__FILE__)
 
+# Requires
+%w{rubygems test/unit mocha active_record shoulda}.each {|dependency| require dependency }
 require ROOT + '/../lib/covalence'
+%w{group user membership}.each { |fixture| require "fixtures/#{fixture}" }
 
-schema_file = ROOT + '/fixtures/schema.rb'
+# Setup ActiveRecord, Load schema
 database_config = YAML::load_file(ROOT + '/database.yml')['sqlite3']
 ActiveRecord::Base.establish_connection(database_config)
+load(ROOT + '/fixtures/schema.rb')
 
-load(schema_file)
-
-class User < ActiveRecord::Base
-  include Covalence::Member
-  is_member_of :groups
-end
-
-class Group < ActiveRecord::Base
-  include Covalence::Group
-  has_members :users
-  has_roles :member, :admin
-  has_default_role :member
-end
-
-class Membership < ActiveRecord::Base
-  include Covalence::Membership
-end
-
+# Tests
 class UserTest < Test::Unit::TestCase
   
   context "When a user joins a group they" do
