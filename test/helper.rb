@@ -27,6 +27,11 @@ class UserTest < Test::Unit::TestCase
     should "have the default role" do
       assert_equal @user.role_in(@group), @group.class.default_role.to_s
     end
+    
+    should "be able to leave that group" do
+      @group.users.remove(@user)
+      assert @group.users.empty?
+    end
   end
   
 end
