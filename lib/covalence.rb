@@ -1,5 +1,6 @@
 require 'covalence/notifications'
 require 'covalence/groups'
+require 'covalence/has_many_through_with_multiple_foreign_asssociation'
 
 module Covalence
   class << self
