@@ -41,41 +41,41 @@ module Covalence
 						send(:has_many, "#{relationship.to_s}_with", {:through => "_#{relationship.to_s}_with", :source => :child, :source_type => self.to_s})
 						send(:has_many, "#{relationship.to_s.singularize}_of", {:through => "_#{relationship.to_s.singularize}_of", :source => :parent, :source_type => self.to_s})
 						
-						define_method(relationship) do |*options|
-							options = options.first || {}
-							opts = {}.merge(options)
-							send("#{relationship.to_s}_with").all(opts) | send("#{relationship.to_s.singularize}_of").all(opts)
-						end
-						
-						define_method("#{relationship}_count") do |*options|
-							options = options.first || {}
-							opts = {}.merge(options)
-							send("#{relationship.to_s}_with").count(opts) + send("#{relationship.to_s.singularize}_of").count(opts)
-						end
-						
-						define_method("is_#{relationship.to_s}_with?") do |item|
-							send("#{relationship.to_s}_with").count(
-								:conditions=>["(`#{klass.tableize}`.child_id = :id AND `#{klass.tableize}`.child_type = :type)", {
-									:type	=> item.class.to_s,
-									:id		=> item.id
-								}]) > 0
-						end
-						
-						define_method("is_a_#{relationship.to_s.singularize}_of?") do |item|
-							send("#{relationship.to_s.singularize}_of").count(
-								:conditions=>["(`#{klass.tableize}`.parent_id = :id AND `#{klass.tableize}`.parent_type = :type)", {
-									:type	=> item.class.to_s,
-									:id		=> item.id
-								}]) > 0
-						end
-						
-						define_method("is_a_#{relationship.to_s.singularize}?") do |item|
-							send("#{relationship}_count",
-								:conditions=>["(`#{klass.tableize}`.parent_id = :id AND `#{klass.tableize}`.parent_type = :type) OR (`#{klass.tableize}`.child_id = :id AND `#{klass.tableize}`.child_type = :type)", {
-									:type	=> item.class.to_s,
-									:id		=> item.id
-								}]) > 0
-						end
+#						define_method(relationship) do |*options|
+#							options = options.first || {}
+#							opts = {}.merge(options)
+#							send("#{relationship.to_s}_with").all(opts) | send("#{relationship.to_s.singularize}_of").all(opts)
+#						end
+#						
+#						define_method("#{relationship}_count") do |*options|
+#							options = options.first || {}
+#							opts = {}.merge(options)
+#							send("#{relationship.to_s}_with").count(opts) + send("#{relationship.to_s.singularize}_of").count(opts)
+#						end
+#						
+#						define_method("is_#{relationship.to_s}_with?") do |item|
+#							send("#{relationship.to_s}_with").count(
+#								:conditions=>["(`#{klass.tableize}`.child_id = :id AND `#{klass.tableize}`.child_type = :type)", {
+#									:type	=> item.class.to_s,
+#									:id		=> item.id
+#								}]) > 0
+#						end
+#						
+#						define_method("is_a_#{relationship.to_s.singularize}_of?") do |item|
+#							send("#{relationship.to_s.singularize}_of").count(
+#								:conditions=>["(`#{klass.tableize}`.parent_id = :id AND `#{klass.tableize}`.parent_type = :type)", {
+#									:type	=> item.class.to_s,
+#									:id		=> item.id
+#								}]) > 0
+#						end
+#						
+#						define_method("is_a_#{relationship.to_s.singularize}?") do |item|
+#							send("#{relationship}_count",
+#								:conditions=>["(`#{klass.tableize}`.parent_id = :id AND `#{klass.tableize}`.parent_type = :type) OR (`#{klass.tableize}`.child_id = :id AND `#{klass.tableize}`.child_type = :type)", {
+#									:type	=> item.class.to_s,
+#									:id		=> item.id
+#								}]) > 0
+#						end
 
 					end
 				end
