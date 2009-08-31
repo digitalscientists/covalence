@@ -36,8 +36,8 @@ module Covalence
 					def has_relationship relationship, options, &extension
 						klass = options[:through].to_s.classify
 						
-						send(:has_many, "_#{relationship.to_s}_with", {:as => :parent, :class_name => klass.to_s})
-						send(:has_many, "_#{relationship.to_s.singularize}_of", {:as => :child, :class_name => klass.to_s})
+						send(:has_many, "_#{relationship.to_s}_with", {:as => :parent, :class_name => klass.to_s, :dependent=>:destroy})
+						send(:has_many, "_#{relationship.to_s.singularize}_of", {:as => :child, :class_name => klass.to_s, :dependent=>:destroy})
 						send(:has_many, "#{relationship.to_s}_with", {:through => "_#{relationship.to_s}_with", :source => :child, :source_type => self.to_s})
 						send(:has_many, "#{relationship.to_s.singularize}_of", {:through => "_#{relationship.to_s.singularize}_of", :source => :parent, :source_type => self.to_s})
 						
