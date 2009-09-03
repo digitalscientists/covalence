@@ -7,8 +7,8 @@ module Covalence
         belongs_to :consumer, :polymorphic => true
         after_save :check_consumer
         after_find :set_as_read
-        validates_presence_of :producer
-        validates_presence_of :consumer
+        #validates_presence_of :producer
+        #validates_presence_of :consumer
         serialize :message
       end
       
@@ -25,8 +25,10 @@ module Covalence
       end
 
       def check_consumer
-        consumer.send(receiver_method, self) if consumer.respond_to? receiver_method
-        logger.info("Notification processed! (From Notification Observer) ##{receiver_method}") 
+        if consumer
+          consumer.send(receiver_method, self) if consumer.respond_to? receiver_method
+          logger.info("Notification processed! (From Notification Observer) ##{receiver_method}") 
+        end
       end
       
       def set_as_read
